@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="5ea8ee7d-6c5f-4363-baa2-d3f2d74ed5d5" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<os:object-store name="MKN" doc:name="Object store" doc:id="590a79be-dfc9-421e-b0e3-514b96af622c" />
+	<http:listener-config name="HTTP_Listener_config1" doc:name="HTTP Listener config" doc:id="2cfcb6d8-e3eb-4179-b3fd-ef8121871906" >
+		<http:listener-connection host="localhost" port="3456" />
+	</http:listener-config>
+	<flow name="objectstoreFlow" doc:id="4ec28af5-d2b1-4b73-8312-91ff21496b7b" >
+		<http:listener doc:name="Listener" doc:id="268678c7-cc3d-49b7-aa6f-69ba94d00891" config-ref="HTTP_Listener_config" path="/test"/>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="9760bfdf-c625-4bf8-acb7-10d4cd24ca0b" />
+		<os:store doc:name="Store" doc:id="e95f1a68-fcda-4cdd-9129-5edae598a88b" key="store1" objectStore="MKN"/>
+		<set-payload value="this is after object store palette" doc:name="Set Payload" doc:id="3f3aa1df-0d4b-4803-a203-64260ad16543" />
+	</flow>
+	<flow name="objectstoreFlow1" doc:id="d9d7720e-2d41-4c68-9037-bd28120a85da" >
+		<http:listener doc:name="Listener" doc:id="95429183-e075-44e2-8755-9af640d5057f" config-ref="HTTP_Listener_config1" path="/test"/>
+		<os:retrieve doc:name="Retrieve" doc:id="26581ae6-0ed8-440f-81e4-d0152766c8af" key="store1" objectStore="MKN"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e7a014dd-78b5-400b-84a7-a91f1844b92c" />
+		<ee:transform doc:name="Transform Message" doc:id="d928361c-9cf7-4dd5-94ef-6ef7f57dfc2c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+Details:{
+	(payload)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
